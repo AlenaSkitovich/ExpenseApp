@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Expense App</string>
+    <string name="if_register">Если вы уже зарегистрированы</string>
+    <string name="login">Войти</string>
+    <string name="if_not_register">Если у вас еще нет аккаунта</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="enter_login">Введите логин</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="enter_name">Введите имя</string>
+    <string name="enter_lastname">Введите фамилию</string>
+    <string name="to_register">Зарегистрироваться</string>
+
+
+</resources>
