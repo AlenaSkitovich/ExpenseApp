@@ -1,76 +1,66 @@
 package com.example.expenseapp.helpers;
 
-import static com.example.expenseapp.helpers.Constants.REGISTEREXCEPT;
-import static com.example.expenseapp.helpers.Constants.REGISTERNOTFOUND;
-import static com.example.expenseapp.helpers.Constants.REGISTERSUCCESS;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import com.example.expenseapp.MainActivity;
 
-public class RegisterThread extends Thread{
+import org.htmlunit.org.apache.http.HttpResponse;
+import org.htmlunit.org.apache.http.client.HttpClient;
+import org.htmlunit.org.apache.http.client.methods.HttpUriRequest;
+import org.htmlunit.org.apache.http.client.methods.RequestBuilder;
+import org.htmlunit.org.apache.http.impl.client.HttpClients;
 
-    private String login;
-    private String password;
-    private String name;
-    private String lastName;
-    private HttpURLConnection connection;
-    private Handler handler;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 
+public class RegisterThread extends Thread {
 
+    public int getStatus() {
+        return status;
+    }
 
-    public RegisterThread(String login,
-                          String password,
-                          String name,
-                          String lastName,
-                          HttpURLConnection connection,
-                          Handler handler) {
+    public String getAuth() {
+        return auth;
+    }
 
-        this.login = login;
-        this.password = password;
-        this.name = name;
-        this.lastName = lastName;
-        this.connection = connection;
-        this.handler = handler;
+    private RegistrationBody body;
+    private String auth;
+    private int status = 0;
+
+    public RegisterThread(RegistrationBody body) {
+        this.body = body;
     }
 
     @Override
     public void run() {
+        super.run();
         try {
-            URL url= new URL(Constants.urlReg);
-            String data="login="+ URLEncoder.encode(login,"utf-8")
-                    +"&password="+ URLEncoder.encode(password,"utf-8")+"name="+ URLEncoder.encode(name,"utf-8")
-                    +"&lastName="+ URLEncoder.encode(lastName,"utf-8");
-            connection=HttpConnectionUtils.getConnection(data,url);
-            int code = connection.getResponseCode();
-            if(code==200){
-                InputStream inputStream = connection.getInputStream();
-                String str = StreamChangeStrUtils.toChange(inputStream);
-                Message message = Message.obtain();
-                message.obj=str;
-                message.what=REGISTERSUCCESS;
-                handler.sendMessage(message);
-            }
-            else {
-                Message message = Message.obtain();
-                message.what=REGISTERNOTFOUND;
-                message.obj = "Исключение регистрации ... повторите попытку позже";
-                handler.sendMessage(message);
-            }
-        } catch (Exception e) {
+            Log.e("link", Constants.urlReg);
+            HttpUriRequest httpUriRequest1 =
+                    RequestBuilder.post(Constants.urlReg)
+                            .addParameter("login", body.getLogin())
+                            .addParameter("password", body.getPassword())
+                            .addParameter("name", body.getName())
+                            .addParameter("lastName", body.getLastName())
+                            .addParameter("url", body.getUrl())
+                            /*.setCharset(StandardCharsets.UTF_8)*/
+                            .build();
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpResponse httpResponse = httpClient.execute(httpUriRequest1);
+            status = httpResponse.getStatusLine().getStatusCode();
+            auth = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent())).readLine();
+            System.out.println(status);
+        } catch (IOException e) {
+            System.out.println("Error!");
             e.printStackTrace();
-            Message message = Message.obtain();
-            message.what=REGISTEREXCEPT;
-            message.obj = "Неисправность сервера ... повторите попытку позже";
-            handler.sendMessage(message);
         }
     }
 }
+
 

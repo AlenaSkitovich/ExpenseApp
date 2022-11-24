@@ -1,67 +1,75 @@
 package com.example.expenseapp.helpers;
 
-import static com.example.expenseapp.helpers.Constants.LOGINEXCEPT;
-import static com.example.expenseapp.helpers.Constants.LOGINNOTFOUND;
-import static com.example.expenseapp.helpers.Constants.LOGINSUCCESS;
+
 import static com.example.expenseapp.helpers.Constants.urlLog;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
+import android.util.Log;
 
-import com.example.expenseapp.LoginActivity;
 
-import java.io.Closeable;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import org.htmlunit.org.apache.http.HttpEntity;
+import org.htmlunit.org.apache.http.HttpResponse;
+import org.htmlunit.org.apache.http.client.HttpClient;
+import org.htmlunit.org.apache.http.client.methods.HttpUriRequest;
+import org.htmlunit.org.apache.http.client.methods.RequestBuilder;
+import org.htmlunit.org.apache.http.impl.client.HttpClients;
+import org.htmlunit.org.apache.http.util.EntityUtils;
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 
 public class LoginThread extends Thread {
-    private String login;
-    private String password;
-    /*private HttpURLConnection connection;
-    private Handler handler;*/
 
-    public LoginThread(String login, String password,HttpURLConnection connection,Handler handler) {
-        this.login = login;
-        this.password = password;
-        /*this.connection = connection;
-        this.handler = handler;*/
+    public int getStatus() {
+        return status;
+    }
+    public String getAuth(){return auth;}
+
+    private RegistrationBody body;
+    private String auth;
+    private int status = 0;
+
+    public LoginThread(RegistrationBody body) {
+        this.body = body;
+
     }
 
     @Override
     public void run() {
-
-
-    }
-        /*
+        super.run();
         try {
-            URL url= new URL(Constants.urlLog);
-            String logData = "login=" + URLEncoder.encode(login, "utf-8")
-                    + "&password=" + URLEncoder.encode(password, "utf-8");
-            connection = HttpConnectionUtils.getConnection(logData,url);
-            int code = connection.getResponseCode();
-            if (code == 200) {
-                InputStream inputStream = connection.getInputStream();
-                String str = StreamChangeStrUtils.toChange(inputStream);
-                Message message = Message.obtain();
-                message.what = LOGINSUCCESS;
-                message.obj = str;
-                handler.sendMessage(message);
-            } else {
-                Message message = Message.obtain();
-                message.what = LOGINNOTFOUND;
-                message.obj = "Исключение регистрации ... Повторите попытку позже";
-                handler.sendMessage(message);
-            }
-        } catch (Exception e) {
+            Log.e("link", urlLog);
+            HttpUriRequest httpUriRequest1 =
+                    RequestBuilder.post(Constants.urlLog)
+                            .addParameter("login", body.getLogin())
+                            .addParameter("password", body.getPassword())
+                            /*.setCharset(StandardCharsets.UTF_8)*/
+                            .build();
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpResponse httpResponse = httpClient.execute(httpUriRequest1);
+
+            /*HttpEntity entity = (HttpEntity) httpResponse.getEntity();
+            String responseString = EntityUtils.toString(entity, "UTF-8");
+            Log.e("str", responseString);*/
+
+            status = httpResponse.getStatusLine().getStatusCode();
+            auth = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent())).readLine();
+            System.out.println(status);
+        } catch (IOException e) {
+            System.out.println("Error!");
             e.printStackTrace();
-            Message message = Message.obtain();
-            message.what = LOGINEXCEPT;
-            message.obj = "Неисправность сервера ... повторите попытку позже";
-            handler.sendMessage(message);
         }
-    }*/
+    }
 }
+
+
+
+
+
+
+
+
+
 

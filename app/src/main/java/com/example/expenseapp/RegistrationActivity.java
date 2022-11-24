@@ -1,58 +1,43 @@
 package com.example.expenseapp;
 
-import static com.example.expenseapp.helpers.Constants.LOGINEXCEPT;
-import static com.example.expenseapp.helpers.Constants.LOGINNOTFOUND;
-import static com.example.expenseapp.helpers.Constants.LOGINSUCCESS;
-import static com.example.expenseapp.helpers.Constants.REGISTEREXCEPT;
-import static com.example.expenseapp.helpers.Constants.REGISTERNOTFOUND;
-import static com.example.expenseapp.helpers.Constants.REGISTERSUCCESS;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.expenseapp.helpers.LoginThread;
 import com.example.expenseapp.helpers.RegisterThread;
+import com.example.expenseapp.helpers.RegistrationBody;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import javax.net.ssl.HttpsURLConnection;
+import java.io.ByteArrayOutputStream;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-    private EditText login;
-    private EditText password;
-    private EditText name;
-    private EditText lastName;
-
-    private String loginStr;
-    private String passwordStr;
-    private String nameStr;
-    private String lastNameStr;
-
+    private EditText name, lastName, login, password, passwordAgain;
     private Button register;
-
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case REGISTERSUCCESS:
-                    Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                case REGISTERNOTFOUND:
-                    Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-                case REGISTEREXCEPT:
-                    Toast.makeText(getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
-                    break;
-            }
-        }
-    };
+    private TextView notCorrect;
+    private ImageView imageView;
+    private static final int PICK_IMAGE = 100;
+    private String url;
 
 
     @Override
@@ -60,28 +45,89 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        login = (EditText) findViewById(R.id.et_login);
-        password = (EditText) findViewById(R.id.et_password);
-        name = (EditText) findViewById(R.id.et_name);
-        lastName = (EditText) findViewById(R.id.et_lastname);
-        register = findViewById(R.id.bt_register);
+        imageView = findViewById(R.id.image);
+        name = findViewById(R.id.name);
+        lastName = findViewById(R.id.lastname);
+        login = findViewById(R.id.login);
+        password = findViewById(R.id.password);
+        passwordAgain = findViewById(R.id.password_again);
+
+        register = findViewById(R.id.register);
+        notCorrect = findViewById(R.id.not_correct);
+
+        notCorrect.setVisibility(View.INVISIBLE);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select picture"), PICK_IMAGE);
+            }
+        });
 
         register.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                if (password.getText().toString().
+                        equals(passwordAgain.getText().toString())) {
+                    notCorrect.setVisibility(View.INVISIBLE);
+                    RegistrationBody body = new RegistrationBody(login.getText().toString(),
+                            password.getText().toString(),
+                            name.getText().toString(),
+                            lastName.getText().toString(), url);
 
-                loginStr = login.getText().toString().trim();
-                passwordStr = password.getText().toString().trim();
-                nameStr = name.getText().toString().trim();
-                lastNameStr = lastName.getText().toString().trim();
-                if (loginStr.equals("") || passwordStr.equals("") || nameStr.equals("") || lastNameStr.equals("")) {
-                    Toast.makeText(RegistrationActivity.this, "Поля не могут быть пустыми", Toast.LENGTH_SHORT).show();
-                } else {
-                    HttpsURLConnection connection = null;
-                    RegisterThread thread = new RegisterThread(loginStr, passwordStr, nameStr, lastNameStr, connection, handler);
-                    thread.start();
+                    Log.e("body", body.toString());
+                    RegisterThread registerThread = new RegisterThread(body);
+                    registerThread.start();
+                    while (registerThread.isAlive()) ;
+                    String str = registerThread.getAuth();
+
+                    notCorrect.setVisibility(View.VISIBLE);
+                    SharedPreferences sharedPreferences = PreferenceManager
+                            .getDefaultSharedPreferences(RegistrationActivity.this);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("login", body.getLogin());
+                    editor.putString("name", body.getName() + " " + body.getLastName());
+                    editor.putString("url", body.getUrl());
+                    editor.putString("id", registerThread.getAuth());
+                    editor.apply();
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    startActivity(intent);
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && data != null) {
+            Uri selectImageUri = data.getData();
+            if (selectImageUri != null) {
+                imageView.setImageURI(selectImageUri);
+                Bitmap bitmap = ((BitmapDrawable) (imageView.getDrawable())).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
+                byte[] bytes = baos.toByteArray();
+                FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+                StorageReference storageReference = firebaseStorage.getReference();
+                StorageReference storageReference1 = storageReference
+                        .child(System.currentTimeMillis() + "");
+                UploadTask up = storageReference1.putBytes(bytes);
+                Task<Uri> task = up.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        return storageReference1.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        url = task.getResult().toString().substring(71, 84);
+                    }
+                });
+            }
+        }
     }
 }

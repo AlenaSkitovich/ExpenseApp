@@ -4,11 +4,15 @@
     <string name="login">Войти</string>
     <string name="if_not_register">Если у вас еще нет аккаунта</string>
     <string name="register">Зарегистрироваться</string>
-    <string name="enter_login">Введите логин</string>
-    <string name="enter_password">Введите пароль</string>
-    <string name="enter_name">Введите имя</string>
-    <string name="enter_lastname">Введите фамилию</string>
-    <string name="to_register">Зарегистрироваться</string>
+    <string name="login_text">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="name">Ваше имя</string>
+    <string name="lastname">Ваша фамилия</string>
+    <string name="not_correct_password">Неверный пароль</string>
+    <string name="password_again">Подтвердить пароль</string>
+    <string name="not_match">Пароли не совпадают</string>
+    <string name="add_ex">Добавить расход</string>
+    <string name="all_ex">Все расходы</string>
 
 
 </resources>
