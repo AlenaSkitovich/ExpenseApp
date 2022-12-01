@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
                     Intent intent = new Intent(MainActivity.this, ChooseActivity.class);
                     startActivity(intent);
+                    finish();
                 }
             });
 

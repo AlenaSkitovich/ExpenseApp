@@ -41,11 +41,7 @@ public class GetExpenseThread extends Thread {
                 list.add(expenseBody);
 
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
     }

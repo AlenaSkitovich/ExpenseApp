@@ -96,6 +96,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     editor.apply();
                     Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                     startActivity(intent);
+                    finish();
                 } else {
                     notCorrect.setVisibility(View.VISIBLE);
                 }
