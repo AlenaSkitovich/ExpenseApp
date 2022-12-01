@@ -20,6 +20,15 @@ public class RegistrationBody {
         this.password = password;
     }
 
+    public RegistrationBody(String name, String lastName, String login) {
+        this.name = name;
+        this.lastName = lastName;
+        this.login = login;
+    }
+
+    public RegistrationBody() {
+    }
+
     public String getLogin() {
         return login;
     }

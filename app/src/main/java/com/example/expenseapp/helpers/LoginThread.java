@@ -1,8 +1,6 @@
 package com.example.expenseapp.helpers;
 
 
-import static com.example.expenseapp.helpers.Constants.urlLog;
-
 import android.util.Log;
 
 
@@ -18,18 +16,19 @@ import org.htmlunit.org.apache.http.util.EntityUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 
 public class LoginThread extends Thread {
+
+    private RegistrationBody body;
+    private String auth;
+    private int status = 0;
 
     public int getStatus() {
         return status;
     }
     public String getAuth(){return auth;}
-
-    private RegistrationBody body;
-    private String auth;
-    private int status = 0;
 
     public LoginThread(RegistrationBody body) {
         this.body = body;
@@ -40,12 +39,12 @@ public class LoginThread extends Thread {
     public void run() {
         super.run();
         try {
-            Log.e("link", urlLog);
+            Log.e("link", Constants.urlMain+"user/login");
             HttpUriRequest httpUriRequest1 =
-                    RequestBuilder.post(Constants.urlLog)
+                    RequestBuilder.post(Constants.urlMain+"user/login")
                             .addParameter("login", body.getLogin())
                             .addParameter("password", body.getPassword())
-                            /*.setCharset(StandardCharsets.UTF_8)*/
+                            .setCharset(StandardCharsets.UTF_8)
                             .build();
             HttpClient httpClient = HttpClients.createDefault();
             HttpResponse httpResponse = httpClient.execute(httpUriRequest1);

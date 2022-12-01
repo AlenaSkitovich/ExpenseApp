@@ -41,18 +41,18 @@ public class RegisterThread extends Thread {
     public void run() {
         super.run();
         try {
-            Log.e("link", Constants.urlReg);
-            HttpUriRequest httpUriRequest1 =
-                    RequestBuilder.post(Constants.urlReg)
+            Log.e("link", Constants.urlMain+"user/register");
+            HttpUriRequest httpUriRequest =
+                    RequestBuilder.post(Constants.urlMain+"user/register")
                             .addParameter("login", body.getLogin())
                             .addParameter("password", body.getPassword())
                             .addParameter("name", body.getName())
                             .addParameter("lastName", body.getLastName())
                             .addParameter("url", body.getUrl())
-                            /*.setCharset(StandardCharsets.UTF_8)*/
+                            .setCharset(StandardCharsets.UTF_8)
                             .build();
             HttpClient httpClient = HttpClients.createDefault();
-            HttpResponse httpResponse = httpClient.execute(httpUriRequest1);
+            HttpResponse httpResponse = httpClient.execute(httpUriRequest);
             status = httpResponse.getStatusLine().getStatusCode();
             auth = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent())).readLine();
             System.out.println(status);

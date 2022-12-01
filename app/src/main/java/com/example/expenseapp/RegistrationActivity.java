@@ -3,6 +3,7 @@ package com.example.expenseapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,7 +35,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private EditText name, lastName, login, password, passwordAgain;
     private Button register;
-    private TextView notCorrect;
+    private TextView notCorrect, loginExists;
     private ImageView imageView;
     private static final int PICK_IMAGE = 100;
     private String url;
@@ -54,8 +55,10 @@ public class RegistrationActivity extends AppCompatActivity {
 
         register = findViewById(R.id.register);
         notCorrect = findViewById(R.id.not_correct);
+        loginExists = findViewById(R.id.login_exists);
 
         notCorrect.setVisibility(View.INVISIBLE);
+        loginExists.setVisibility(View.INVISIBLE);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,9 +87,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     while (registerThread.isAlive()) ;
                     String str = registerThread.getAuth();
 
-                    notCorrect.setVisibility(View.VISIBLE);
-                    SharedPreferences sharedPreferences = PreferenceManager
-                            .getDefaultSharedPreferences(RegistrationActivity.this);
+                    SharedPreferences sharedPreferences = getSharedPreferences("app", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("login", body.getLogin());
                     editor.putString("name", body.getName() + " " + body.getLastName());
@@ -95,6 +96,8 @@ public class RegistrationActivity extends AppCompatActivity {
                     editor.apply();
                     Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                     startActivity(intent);
+                } else {
+                    notCorrect.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -124,7 +127,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                     @Override
                     public void onComplete(@NonNull Task<Uri> task) {
-                        url = task.getResult().toString().substring(71, 84);
+                        url = task.getResult().toString().substring(76, 89);
                     }
                 });
             }

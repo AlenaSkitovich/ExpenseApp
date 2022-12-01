@@ -11,8 +11,19 @@
     <string name="not_correct_password">Неверный пароль</string>
     <string name="password_again">Подтвердить пароль</string>
     <string name="not_match">Пароли не совпадают</string>
+    <string name="already_exists">Пользователь с таким логином уже существует</string>
     <string name="add_ex">Добавить расход</string>
     <string name="all_ex">Все расходы</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="exit">Выйти</string>
+    <string name="enter_sum">Введите сумму</string>
+    <string name="enter_ex_name">Введите цель затрат</string>
+    <string name="change_ph">Выбрать новое фото</string>
+    <string name="save_ph">Сохранить фото</string>
+    <string name="save_changes">Сохранить данные</string>
+    <string name="user_name">Введите имя</string>
+    <string name="user_lastname">Введите фамилию</string>
+
 
 
 </resources>
