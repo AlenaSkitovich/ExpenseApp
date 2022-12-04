@@ -3,6 +3,7 @@ package com.example.expenseapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,7 +26,7 @@ public class AllExpensesActivity extends AppCompatActivity {
 
     private ListView listView;
     private int size;
-    List<ExpenseBody>list;
+    List<ExpenseBody> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class AllExpensesActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("app", Context.MODE_PRIVATE);
         GetExpenseThread getExpenseThread = new GetExpenseThread(sharedPreferences.getAll().get("id").toString());
         getExpenseThread.start();
-        while(getExpenseThread.isAlive());
+        while (getExpenseThread.isAlive()) ;
         list = getExpenseThread.getList();
         size = list.size();
         /*ArrayAdapter adapter = new ArrayAdapter(AllExpensesActivity.this, android.R.layout.simple_list_item_1,list);*/
@@ -44,7 +45,8 @@ public class AllExpensesActivity extends AppCompatActivity {
 
 
     }
-    private  class CustomAdapter extends BaseAdapter{
+
+    private class CustomAdapter extends BaseAdapter {
 
         private int position;
         private View convertView;
@@ -67,7 +69,7 @@ public class AllExpensesActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = getLayoutInflater().inflate(R.layout.custom_list,null);
+            convertView = getLayoutInflater().inflate(R.layout.custom_list, null);
             TextView textView = convertView.findViewById(R.id.name);
             TextView textView1 = convertView.findViewById(R.id.sum);
 
@@ -75,5 +77,12 @@ public class AllExpensesActivity extends AppCompatActivity {
             textView1.setText(list.get(position).getSum());
             return convertView;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(AllExpensesActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

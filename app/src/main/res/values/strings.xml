@@ -23,7 +23,7 @@
     <string name="save_changes">Сохранить данные</string>
     <string name="user_name">Введите имя</string>
     <string name="user_lastname">Введите фамилию</string>
-
+    <string name="calendar_open">Календарь</string>
 
 
 </resources>

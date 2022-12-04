@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private TextView textView;
-    private Button exit, add, all, editProfile;
+    private Button exit, add, calendar, all, editProfile;
     private StorageReference storageReference;
     private FirebaseStorage firebaseStorage;
 
@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         exit = findViewById(R.id.exit);
         add = findViewById(R.id.add);
+        calendar = findViewById(R.id.calendar);
         all = findViewById(R.id.all);
         editProfile = findViewById(R.id.edit_pr);
 
@@ -70,7 +71,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
+            calendar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
 
             editProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -84,8 +92,9 @@ public class MainActivity extends AppCompatActivity {
             all.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(MainActivity.this,AllExpensesActivity.class);
+                    Intent intent = new Intent(MainActivity.this, AllExpensesActivity.class);
                     startActivity(intent);
+                    finish();
                 }
             });
         }
